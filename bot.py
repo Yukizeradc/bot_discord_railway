@@ -3,6 +3,7 @@ from discord.ext import commands, tasks
 from flask import Flask
 from threading import Thread
 import os
+import asyncio  # adicionado para usar sleep
 
 # Configuração do Flask para manter o bot online
 app = Flask(__name__)
@@ -36,14 +37,15 @@ async def on_ready():
     print(f"Bot conectado como {bot.user}")
     limpar_canal.start()
 
-@tasks.loop(seconds=30)
+@tasks.loop(seconds=360)  # executa a cada 6 minutos
 async def limpar_canal():
     try:
         for canal_id in canal_ids:
             canal = bot.get_channel(canal_id)
             if canal:
-                await canal.purge(limit=100)
+                await canal.purge(limit=20)  # reduzido para 20 mensagens
                 print(f"Canal {canal.name} limpo!")
+                await asyncio.sleep(10)  # espera 10 segundos entre canais
             else:
                 print(f"Canal com ID {canal_id} não encontrado.")
     except Exception as e:
